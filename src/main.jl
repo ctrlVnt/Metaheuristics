@@ -9,7 +9,7 @@ include("loadSPP.jl")
 include("setSPP.jl")
 include("getfname.jl")
 include("heuristicSPP.jl")
-include("localSearch_1_1.jl")
+include("improvements.jl")
 
 # =========================================================================== #
 
