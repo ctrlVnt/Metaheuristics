@@ -12,44 +12,44 @@ function localSearch_1_1(C, A, x)
     while improved
         improved = false
 
-        # Try to replace one selected variable (x[i] == 1) with one not selected (x[j] == 0)
-        for i in findall(x .== 1)       # candidate indices to remove from solution
-            for j in findall(x .== 0)   # candidate indices to add to solution
+        # Explore all 1-1 swaps
+        for i in findall(x .== 1)       # candidate to remove
+            for j in findall(x .== 0)   # candidate to add
 
                 # build a new candidate solution by swapping i -> j
                 x_new = copy(x)
                 x_new[i] = 0
                 x_new[j] = 1
 
-                # check feasibility: all constraints must be satisfied (A * x_new <= 1)
+                # check feasibility
                 if all((A * x_new) .<= 1)
-                    # compute the objective function for the new solution
+
                     new_value = sum(C .* x_new)
-                    # first improvement: accept immediately if better
+                    # first improvement accepted immediately
                     if new_value > current_value
                         x = x_new
                         current_value = new_value
                         improved = true
-                        break   # break inner loop (j loop)
+                        break 
                     end
                 end
             end
             if improved
-                break   # break outer loop (i loop) if improvement was found
+                break 
             end
         end
     end
 
-    return x, current_value   # return final solution and its objective value
+    return x, current_value
 end
 
 # Deepest-Descent Local Search 1-1
 function deepestDescent_1_1(C, A, x)
-    n = length(C)
-    m = size(A, 1)
+    n = length(C)        # n variables
+    m = size(A, 1)       # n constraints
 
-    current_value = sum(C .* x)
-    improved = true
+    current_value = sum(C .* x)   # current value
+    improved = true               # flag for while loop
 
     while improved
         improved = false
@@ -59,11 +59,13 @@ function deepestDescent_1_1(C, A, x)
         # Explore all 1-1 swaps
         for i in findall(x .== 1)        # candidate to remove
             for j in findall(x .== 0)    # candidate to add
+
+                # build a new candidate solution by swapping i -> j
                 x_new = copy(x)
                 x_new[i] = 0
                 x_new[j] = 1
 
-                # feasibility check A matrix and 
+                # check feasibility
                 if all((A * x_new) .<= 1)
                     new_value = sum(C .* x_new)
                     # keep the deepest improvement
@@ -75,7 +77,7 @@ function deepestDescent_1_1(C, A, x)
             end
         end
 
-        # Apply the best swap if improvement exists
+        # Apply the best swap if improvement exists to x
         if best_move !== nothing
             i, j = best_move
             x[i] = 0
