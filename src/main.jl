@@ -29,7 +29,7 @@ println("Heuristic solution value = ", sum(C .* x_heur))
 # Improvement with local search 1–1 exchange
 #x_best, val_best = localSearch_1_1(C, A, x_heur)
 #println("Local search = ", val_best)
-x_best, val_best = deepestDescent_2_1(C, A, x_heur)
+x_best, val_best = deepestDescent_1_1(C, A, x_heur)
 println("Deepest search = ", val_best)
 #println("Local search = ", val_best, "  x = ", x_best)
 
