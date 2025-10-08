@@ -3,11 +3,11 @@
 # A: constraint matrix
 # x: initial feasible solution (0-1 vector)
 function localSearch_1_1(C, A, x)
-    n = length(C)        # number of variables
-    m = size(A, 1)       # number of constraints
+    n = length(C)        # n variables
+    m = size(A, 1)       # n constraints
 
-    current_value = sum(C .* x)   # current objective function value
-    improved = true               # flag to control the while loop
+    current_value = sum(C .* x)   # current value
+    improved = true               # flag for while loop
 
     while improved
         improved = false
@@ -44,9 +44,6 @@ function localSearch_1_1(C, A, x)
 end
 
 # Deepest-Descent Local Search 1-1
-# C: profit vector
-# A: constraint matrix
-# x: initial feasible solution (0-1 vector)
 function deepestDescent_1_1(C, A, x)
     n = length(C)
     m = size(A, 1)
@@ -66,7 +63,7 @@ function deepestDescent_1_1(C, A, x)
                 x_new[i] = 0
                 x_new[j] = 1
 
-                # feasibility check
+                # feasibility check A matrix and 
                 if all((A * x_new) .<= 1)
                     new_value = sum(C .* x_new)
                     # keep the deepest improvement
@@ -82,6 +79,59 @@ function deepestDescent_1_1(C, A, x)
         if best_move !== nothing
             i, j = best_move
             x[i] = 0
+            x[j] = 1
+            current_value = best_value
+            improved = true
+        end
+    end
+
+    return x, current_value
+end
+
+# Deepest-Descent Local Search 2-1
+function deepestDescent_2_1(C, A, x)
+    n = length(C)
+    m = size(A, 1)
+
+    current_value = sum(C .* x)
+    improved = true
+
+    while improved
+        improved = false
+        best_value = current_value
+        best_move = nothing
+
+        # Explore all 2-1 swaps
+        active = findall(x .== 1)
+        inactive = findall(x .== 0)
+
+        for a1 = 1:length(active)-1
+            for a2 = a1+1:length(active)
+                i1 = active[a1]
+                i2 = active[a2]
+
+                for j in inactive
+                    x_new = copy(x)
+                    x_new[i1] = 0
+                    x_new[i2] = 0
+                    x_new[j] = 1
+
+                    if all((A * x_new) .<= 1)
+                        new_value = sum(C .* x_new)
+
+                        if new_value > best_value
+                            best_value = new_value
+                            best_move = (i1, i2, j)
+                        end
+                    end
+                end
+            end
+        end
+
+        if best_move !== nothing
+            i1, i2, j = best_move
+            x[i1] = 0
+            x[i2] = 0
             x[j] = 1
             current_value = best_value
             improved = true
