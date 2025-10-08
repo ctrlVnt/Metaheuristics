@@ -13,9 +13,10 @@ include("improvements.jl")
 
 # =========================================================================== #
 
+t1 = time();
 # Loading a SPP instance
 println("\nLoading...")
-fname = "../dat/pb_100rnd0100.dat"
+fname = "../dat/pb_200rnd0100.dat"
 C, A = loadSPP(fname)
 #@show C #profits
 #@show A #constrants
@@ -25,14 +26,21 @@ println("\nSolving with heuristic...")
 x_heur = heuristicSPP(C, A)
 println("Heuristic solution value = ", sum(C .* x_heur))
 #println("x = ", x_heur)
+elapsed_time = time() - t1;
+println("Heuristic search time = ", elapsed_time)
 
+t2 = time();
 # Improvement with local search 1–1 exchange
-#x_best, val_best = localSearch_1_1(C, A, x_heur)
-#println("Local search = ", val_best)
-x_best, val_best = deepestDescent_1_1(C, A, x_heur)
-println("Deepest search = ", val_best)
+x_best, val_best = localSearch_1_1(C, A, x_heur)
+println("Local search = ", val_best)
+
+#revoir cet algorithme
+#x_best, val_best = deepestDescent_1_1(C, A, x_heur)
+#println("Deepest search = ", val_best)
 #println("Local search = ", val_best, "  x = ", x_best)
 
+end_time = time() - t2;
+println("Time search time = ", end_time);
 
 # --------------- #
 

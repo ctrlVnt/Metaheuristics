@@ -1,5 +1,3 @@
-#Execrise 1
-
 #C profits
 #A constrants
 function heuristicSPP(C, A)
