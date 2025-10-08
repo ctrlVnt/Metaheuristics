@@ -11,8 +11,8 @@ function heuristicSPP(C, A)
 
     # greedy construction
     used_rows = falses(m)   # vector of toke constrancts
-    #order = sortperm(C, rev=true)  # we order index of proficts in decreasing order (Not indispensable)
-    order = sortperm(C)
+    order = sortperm(C, rev=true)  # we order index of proficts in decreasing order (Not indispensable)
+    #order = 1:n # natural index order
     for i in order
         rows_un = findall(!iszero, A[:, i])  # we create a vector with the number of index in column i that are 1
         if !any(used_rows[rows_un])          # if in rows_un positions of contrancts vector we don't find true
