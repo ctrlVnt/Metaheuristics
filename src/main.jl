@@ -42,6 +42,13 @@ println("Local search = ", val_best)
 end_time = time() - t2;
 println("Time search time = ", end_time);
 
+# In Grasp we insert alpha end iter
+alpha = 0.3
+iter = 10
+println("\nSolving with GRASP...")
+x_heur, value = heuristicGRASP(C, A, alpha, iter)
+println("Heuristic solution value = ", value)
+
 # --------------- #
 
 # Solving a SPP instance with GLPK
