@@ -43,11 +43,14 @@ end_time = time() - t2;
 println("Time search time = ", end_time);
 
 # In Grasp we insert alpha end iter
+t3 = time();
 alpha = 0.3
-iter = 10
+iter = 5
 println("\nSolving with GRASP...")
 x_heur, value = heuristicGRASP(C, A, alpha, iter)
 println("Heuristic solution value = ", value)
+end_grasp = time() - t3;
+println("GRASP time = ", end_grasp);
 
 # --------------- #
 
@@ -66,8 +69,8 @@ println("Heuristic solution value = ", value)
 # =========================================================================== #
 
 # Collecting the names of instances to solve
-println("\nCollecting...")
-target = "../dat"
-fnames = getfname(target)
+#println("\nCollecting...")
+#target = "../dat"
+#fnames = getfname(target)
 
-println("\nThat's all folks !")
+#println("\nThat's all folks !")

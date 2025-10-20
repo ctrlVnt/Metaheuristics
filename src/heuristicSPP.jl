@@ -32,6 +32,8 @@ function heuristicGRASP(C, A, alpha, iter)
     s = zeros(Int, n)       # reset S˚, the best solution found
     sres = 0
 
+    eliteSet = []
+
     for y in 1:iter
 
         # S ← greedyRandomizedConstruction(problem, α)
@@ -72,6 +74,19 @@ function heuristicGRASP(C, A, alpha, iter)
 
         # S1 <- localSearchImprovement(S)
         s1, s1res = localSearch_1_1(C, A, x) # x is the heuristic
+
+        # path relinking
+        if !isempty(eliteSet)
+            (xElite, _) = eliteSet[rand(1:length(eliteSet))]
+            sPR, sPRres = pathRelinking(C, A, s1, xElite, eliteSet)
+            if sPRres > s1res
+                s1 .= sPR
+                s1res = sPRres
+            end
+        end
+
+        # update elite
+        push!(eliteSet, (copy(s1), s1res))
         
         # update the global best solution S*
         if s1res > sres

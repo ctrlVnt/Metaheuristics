@@ -89,3 +89,40 @@ function deepestDescent_1_1(C, A, x)
 
     return x, current_value
 end
+
+# Path Relinking between two solutions xA and xB
+function pathRelinking(C, A, xA, xB, eliteSet)
+    xi = copy(xA)
+    best = copy(xi)
+    best_val = sum(C .* xi)  # evaluate initial solution
+
+    diff_indices = findall(i -> xi[i] != xB[i], 1:length(xi))
+
+    while !isempty(diff_indices)
+        # select one move randomly (could be heuristic)
+        i = rand(diff_indices)
+        xi[i] = xB[i]
+
+        # evaluate new solution
+        val = sum(C .* xi)
+        if val > best_val
+            best_val = val
+            best .= xi
+        end
+
+        # optional: local search improvement
+        xi_ls, val_ls = localSearch_1_1(C, A, xi)
+        if val_ls > best_val
+            best .= xi_ls
+            best_val = val_ls
+        end
+
+        # update differences
+        diff_indices = findall(i -> xi[i] != xB[i], 1:length(xi))
+    end
+
+    # update elite set only once (with best found)
+    push!(eliteSet, (copy(best), best_val))
+
+    return best, best_val
+end
