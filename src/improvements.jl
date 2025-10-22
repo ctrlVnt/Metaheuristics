@@ -69,6 +69,7 @@ function deepestDescent_1_1(C, A, x)
                 if all((A * x_new) .<= 1)
                     new_value = sum(C .* x_new)
                     # keep the deepest improvement
+                    println(new_value)
                     if new_value > best_value
                         best_value = new_value
                         best_move = (i, j)
@@ -99,7 +100,7 @@ function pathRelinking(C, A, xA, xB, eliteSet)
     diff_indices = findall(i -> xi[i] != xB[i], 1:length(xi))
 
     while !isempty(diff_indices)
-        # select one move randomly (could be heuristic)
+        # select one move randomly
         i = rand(diff_indices)
         xi[i] = xB[i]
 

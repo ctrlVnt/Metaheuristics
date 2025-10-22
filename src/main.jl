@@ -16,7 +16,7 @@ include("improvements.jl")
 t1 = time();
 # Loading a SPP instance
 println("\nLoading...")
-fname = "../dat/pb_200rnd0100.dat"
+fname = "../dat/pb_500rnd1700.dat"
 C, A = loadSPP(fname)
 #@show C #profits
 #@show A #constrants
@@ -25,32 +25,42 @@ C, A = loadSPP(fname)
 println("\nSolving with heuristic...")
 x_heur = heuristicSPP(C, A)
 println("Heuristic solution value = ", sum(C .* x_heur))
-#println("x = ", x_heur)
 elapsed_time = time() - t1;
 println("Heuristic search time = ", elapsed_time)
 
-t2 = time();
+
 # Improvement with local search 1–1 exchange
+t2 = time();
 x_best, val_best = localSearch_1_1(C, A, x_heur)
 println("Local search = ", val_best)
+end_time = time() - t2;
+println("Local search time = ", end_time);
 
 #revoir cet algorithme
-#x_best, val_best = deepestDescent_1_1(C, A, x_heur)
-#println("Deepest search = ", val_best)
-#println("Local search = ", val_best, "  x = ", x_best)
+t22 = time();
+x_best, val_best = deepestDescent_1_1(C, A, x_heur)
+println("Deepest search = ", val_best)
 
-end_time = time() - t2;
-println("Time search time = ", end_time);
+end_time22 = time() - t22;
+println("Deepest search time = ", end_time22);
 
 # In Grasp we insert alpha end iter
-t3 = time();
-alpha = 0.3
+alpha = 0.7 # 1 casual 0 determinist
 iter = 5
 println("\nSolving with GRASP...")
-x_heur, value = heuristicGRASP(C, A, alpha, iter)
-println("Heuristic solution value = ", value)
+t3 = time();
+x_heur, value = heuristicGRASPnoImp(C, A, alpha, iter)
 end_grasp = time() - t3;
+println("Heuristic solution value = ", value)
 println("GRASP time = ", end_grasp);
+
+println("\nSolving with GRASP + path linking...")
+t4 = time();
+x_heur, value = heuristicGRASP(C, A, alpha, iter)
+end_grasp2 = time() - t4;
+println("Heuristic solution value = ", value)
+println("GRASP + Path Relinking time = ", end_grasp2);
+
 
 # --------------- #
 
