@@ -69,7 +69,6 @@ function deepestDescent_1_1(C, A, x)
                 if all((A * x_new) .<= 1)
                     new_value = sum(C .* x_new)
                     # keep the deepest improvement
-                    println(new_value)
                     if new_value > best_value
                         best_value = new_value
                         best_move = (i, j)

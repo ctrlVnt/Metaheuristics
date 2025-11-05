@@ -45,8 +45,8 @@ end_time22 = time() - t22;
 println("Deepest search time = ", end_time22);
 
 # In Grasp we insert alpha end iter
-alpha = 0.7 # 1 casual 0 determinist
-iter = 5
+alpha = 0.4 # 1 casual 0 determinist
+iter = 20
 println("\nSolving with GRASP...")
 t3 = time();
 x_heur, value = heuristicGRASPnoImp(C, A, alpha, iter)
