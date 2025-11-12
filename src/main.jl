@@ -13,7 +13,6 @@ include("improvements.jl")
 
 # =========================================================================== #
 
-t1 = time();
 # Loading a SPP instance
 println("\nLoading...")
 fname = "../dat/pb_500rnd1700.dat"
@@ -22,6 +21,7 @@ C, A = loadSPP(fname)
 #@show A #constrants
 
 # Solving a SPP instance with artigian method
+t1 = time();
 println("\nSolving with heuristic...")
 x_heur = heuristicSPP(C, A)
 println("Heuristic solution value = ", sum(C .* x_heur))
@@ -45,8 +45,8 @@ end_time22 = time() - t22;
 println("Deepest search time = ", end_time22);
 
 # In Grasp we insert alpha end iter
-alpha = 0.4 # 1 casual 0 determinist
-iter = 20
+alpha = 0.8 # 1 casual 0 determinist
+iter = 5
 println("\nSolving with GRASP...")
 t3 = time();
 x_heur, value = heuristicGRASPnoImp(C, A, alpha, iter)
@@ -61,6 +61,14 @@ end_grasp2 = time() - t4;
 println("Heuristic solution value = ", value)
 println("GRASP + Path Relinking time = ", end_grasp2);
 
+#=
+println("\nSolving with ACO...")
+t5 = time();
+x_heur, value = ACO(C, A; num_ants=20, num_iter=50)
+end_aco = time() - t5;
+println("Heuristic solution value = ", value)
+println("ACO time = ", end_aco);
+=#
 
 # --------------- #
 
