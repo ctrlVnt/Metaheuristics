@@ -20,6 +20,7 @@ C, A = loadSPP(fname)
 #@show C #profits
 #@show A #constrants
 
+#=
 # Solving a SPP instance with artigian method
 t1 = time();
 println("\nSolving with heuristic...")
@@ -60,15 +61,20 @@ x_heur, value = heuristicGRASP(C, A, alpha, iter)
 end_grasp2 = time() - t4;
 println("Heuristic solution value = ", value)
 println("GRASP + Path Relinking time = ", end_grasp2);
-
-#=
-println("\nSolving with ACO...")
-t5 = time();
-x_heur, value = ACO(C, A; num_ants=20, num_iter=50)
-end_aco = time() - t5;
-println("Heuristic solution value = ", value)
-println("ACO time = ", end_aco);
 =#
+
+println("\nSolving with ACO...")
+t5 = time()
+x_aco, val_aco, tau = ACO_SPP(C, A;
+                               num_ants=30,
+                               num_iter=60,
+                               alpha=1.0,
+                               beta=2.0,
+                               rho=0.1,
+                               Q=1.0)
+end_aco = time() - t5
+println("ACO solution value = ", val_aco)
+println("ACO time = ", end_aco)
 
 # --------------- #
 
