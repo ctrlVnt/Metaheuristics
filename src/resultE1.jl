@@ -9,7 +9,7 @@ include("improvements.jl")
 # Directory contenente i file da testare
 dat_dir = "../dat"
 
-# Prendi tutti i file .dat in res_dir
+# Prendi tutti i file .dat
 files = readdir(dat_dir)
 dat_files = filter(f -> endswith(f, ".dat"), files)
 
@@ -43,7 +43,7 @@ end
 latex_file = "results_table.tex"
 open(latex_file, "w") do io
     println(io, "Result E1")
-    println(io, "\\begin{tabular}{lrrrr}")
+    println(io, "\\begin{longtable}[c]{| c | c | c | c | c |}")
     println(io, "\\hline")
     println(io, "File & Heuristic & Time (s) & Local Search & Time (s) \\\\")
     println(io, "\\hline")
@@ -51,7 +51,7 @@ open(latex_file, "w") do io
         println(io, @sprintf("%s & %.2f & %.2f & %.2f & %.2f \\\\", fname, val_heur, t_heur, val_local, t_local))
     end
     println(io, "\\hline")
-    println(io, "\\end{tabular}")
+    println(io, "\\end{longtable}")
 end
 
 println("Results saved in $latex_file")

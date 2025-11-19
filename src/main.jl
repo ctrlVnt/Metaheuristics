@@ -20,7 +20,6 @@ C, A = loadSPP(fname)
 #@show C #profits
 #@show A #constrants
 
-#=
 # Solving a SPP instance with artigian method
 t1 = time();
 println("\nSolving with heuristic...")
@@ -54,10 +53,7 @@ x_heur, value = heuristicGRASPnoImp(C, A, alpha, iter)
 end_grasp = time() - t3;
 println("Heuristic solution value = ", value)
 println("GRASP time = ", end_grasp);
-=#
 
-alpha = 0.8 # 1 casual 0 determinist
-iter = 5
 println("\nSolving with GRASP + path linking...")
 t4 = time();
 x_heur, value = heuristicGRASP(C, A, alpha, iter)
