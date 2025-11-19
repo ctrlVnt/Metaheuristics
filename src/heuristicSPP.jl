@@ -224,14 +224,14 @@ function construct_solution_ant(C::Vector{<:Number}, A::AbstractMatrix,
     return x
 end
 
-# Main ACO function (no local search)
 function ACO_SPP(C::Vector{<:Number}, A::AbstractMatrix;
                  num_ants::Int=20,
                  num_iter::Int=50,
                  alpha::Float64=1.0,
                  beta::Float64=2.0,
                  rho::Float64=0.1,
-                 Q::Float64=1.0)
+                 Q::Float64=1.0,
+                 localSearch=false)
 
     n = length(C)
     sumC = sum(float.(C))
@@ -247,6 +247,11 @@ function ACO_SPP(C::Vector{<:Number}, A::AbstractMatrix;
 
         for ant in 1:num_ants
             x = construct_solution_ant(C, A, tau, alpha, beta)
+
+            if localSearch
+                x, _ = localSearch_1_1(C, A, x)
+            end
+
             v = sum(C .* x)
             push!(sols, x)
             push!(vals, float(v))
@@ -278,7 +283,7 @@ function ACO_SPP(C::Vector{<:Number}, A::AbstractMatrix;
             tau[i] += 0.5 * deltaG
         end
 
-        println("ACO iter $iter: best_so_far = ", best_global_val)
+        #println("ACO iter $iter: best_so_far = ", best_global_val)
     end
 
     return best_global, best_global_val, tau
