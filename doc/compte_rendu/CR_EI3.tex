@@ -1,0 +1,352 @@
+% =====================================================================================
+% Document : rendu du IE3
+% Auteur : Xavier Gandibleux
+% Année académique : 2024-2025
+
+\section*{Livrable de l'exercice d'implémentation 3 : \\ Battle of metaheuristics}
+
+%
+% -----------------------------------------------------------------------------------------------------------------------------------------------------
+%
+
+\vspace{5mm}
+\noindent
+\fbox{
+  \begin{minipage}{0.97 \textwidth}
+    \begin{center}
+      \vspace{1mm}
+        \Large{Présentation succincte des choix de mise en \oe uvre de la métaheuristique concurrente à GRASP appliquée au SPP}
+      \vspace{1mm}
+    \end{center}
+  \end{minipage}
+}
+\vspace{2mm}
+
+\noindent
+Pour cette étape on a choisi d'implémenter \textbf{l'Algorithme de colonies de fourmis (ACO)}, un algorithme inspirés du comportement des fourmis.
+
+Le paradigma :
+\begin{enumerate}
+    \item une fourmi parcourt plus ou moins au hasard l’environnement autour de la colonie
+    \item si celle-ci découvre une source de nourriture, elle rentre plus ou moins directement au nid, en laissant sur son chemin une piste de phéromones
+    \item Les fourmis attirées par les phéromones auront tendance à suivre, plus ou moins directement, la piste ainsi tracée
+    \item en revenant au nid, ces mêmes fourmis vont renforcer la piste
+    \item si deux pistes sont possibles pour atteindre la même source de nourriture, celle étant la plus courte sera, dans le même temps, parcourue par plus de fourmis que la longue piste
+    \item la piste courte sera donc de plus en plus renforcée, et donc de plus en plus attractive
+    \item la longue piste, elle, finira par disparaître, les phéromones étant volatiles
+    \item à terme, l’ensemble des fourmis a donc déterminé et « choisi » la piste la plus courte
+\end{enumerate}
+
+\subsubsection*{Les variables :}
+
+\begin{itemize}
+    \item \textbf{\texttt{num\_ants}} : nombre de fourmis utilisées à chaque itération pour construire des solutions candidates.
+
+    \item \textbf{\texttt{num\_iter}} : nombre total d’itérations de l’algorithme ACO.
+
+    \item \textbf{\texttt{alpha}} : paramètre qui contrôle l’influence des phéromones lors de la sélection des éléments par les fourmis. Plus $\alpha$ est grand, plus les phéromones guideront fortement le choix.
+
+    \item \textbf{\texttt{beta}} : paramètre qui contrôle l’influence de la qualité heuristique (ici, le coût $C[i]$) sur le choix des éléments par les fourmis. Plus $\beta$ est grand, plus la sélection favorise les éléments de coût élevé.
+
+    \item \textbf{\texttt{rho}} : taux d’évaporation des phéromones à chaque itération. Détermine la vitesse à laquelle l’information historique est oubliée.
+
+    \item \textbf{\texttt{Q}} : facteur de renforcement des phéromones, proportionnel à la qualité de la solution trouvée.
+
+\end{itemize}
+
+
+
+\begin{algorithm}[h!]
+\caption{WeightedChoice}
+\label{alg:weighted_choice}
+\begin{algorithmic}[1]
+    \If{$A$ est vide}
+        \State \textbf{erreur:} ensemble vide
+    \EndIf
+    \State Remplacer tout poids négatif ou non fini par $0$
+    \State $W \leftarrow \sum w$
+    \If{$W = 0$}
+        \State \textbf{retourner} un élément choisi uniformément dans $A$
+    \EndIf
+    \State Calculer la somme cumulative: $cw_i = \sum_{j \le i} \frac{w_j}{W}$
+    \State Tirer un nombre aléatoire $r \sim U(0,1)$
+    \State Trouver le plus petit $i$ tel que $cw_i \ge r$
+    \State \textbf{retourner} $A[i]$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[h!]
+\caption{ConstructSolutionAnt}
+\label{alg:construct_solution_ant}
+\begin{algorithmic}[1]
+    \State $x \leftarrow$ vecteur de $0$ (solution)
+    \State $U \leftarrow$ ensemble des lignes non encore couvertes
+    \State $Cnd \leftarrow$ ensemble des colonnes disponibles
+
+    \While{$Cnd \neq \emptyset$}
+        \State $F \leftarrow \emptyset$ \Comment{colonnes faisables}
+        \State $W \leftarrow \emptyset$ \Comment{poids}
+
+        \For{chaque colonne $i \in Cnd$}
+            \If{$i$ ne couvre aucune ligne déjà utilisée}
+                \State Ajouter $i$ à $F$
+                \State $\eta_i \leftarrow \max(10^{-9}, C[i])$ \Comment{visibilité}
+                \State Ajouter $(\tau[i]^\alpha \cdot \eta_i^\beta)$ à $W$
+            \EndIf
+        \EndFor
+
+        \If{$F$ est vide}
+            \State \textbf{break}
+        \EndIf
+
+        \State $c \leftarrow \text{WeightedChoice}(F, W)$
+        \State Marquer toutes les lignes couvertes par $c$ comme utilisées
+        \State $x[c] \leftarrow 1$
+        \State Retirer $c$ de $Cnd$
+    \EndWhile
+
+    \State \textbf{retourner} $x$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[h!]
+\caption{ACO\_SPP}
+\label{alg:aco_spp}
+\begin{algorithmic}[1]
+    \Require Coûts $C$, matrice $A$, nombre de fourmis $m$, itérations $T$, paramètres $\alpha,\beta,\rho,Q$
+    \State Initialiser les phéromones $\tau_i \leftarrow 1$ pour tout $i$
+    \State $x^{best} \leftarrow$ solution nulle
+    \State $z^{best} \leftarrow -\infty$
+
+    \For{$t = 1$ \textbf{à} $T$}
+        \State $S \leftarrow \emptyset$ \Comment{solutions des fourmis}
+        \State $Z \leftarrow \emptyset$ \Comment{valeurs}
+
+        \For{chaque fourmi $k = 1..m$}
+            \State $x^k \leftarrow$ \textsc{ConstructSolutionAnt}$(C,A,\tau,\alpha,\beta)$
+            \If{local search activée}
+                \State $x^k \leftarrow$ \textsc{LocalSearch}$(x^k)$
+            \EndIf
+            \State $z^k \leftarrow \sum_i C[i] \cdot x^k[i]$
+            \State Ajouter $x^k$ à $S$ et $z^k$ à $Z$
+            \If{$z^k > z^{best}$}
+                \State $x^{best} \leftarrow x^k$
+                \State $z^{best} \leftarrow z^k$
+            \EndIf
+        \EndFor
+
+        \State \Comment{Évaporation}
+        \State $\tau_i \leftarrow (1-\rho) \cdot \tau_i$ pour tout $i$
+
+        \State \Comment{Dépôt de phéromones des fourmis}
+        \For{chaque solution $x^k$}
+            \If{$z^k > 0$}
+                \State $\Delta \tau \leftarrow Q \cdot z^k / \sum C$
+                \For{chaque $i$ tel que $x^k[i]=1$}
+                    \State $\tau_i \leftarrow \tau_i + \Delta \tau$
+                \EndFor
+            \EndIf
+        \EndFor
+
+        \State \Comment{Dépôt élitiste}
+        \State $\Delta \tau^{elite} \leftarrow 0.5 \cdot Q \cdot z^{best} / \sum C$
+        \For{chaque $i$ tel que $x^{best}[i]=1$}
+            \State $\tau_i \leftarrow \tau_i + \Delta \tau^{elite}$
+        \EndFor
+    \EndFor
+
+    \State \textbf{retourner} $(x^{best}, z^{best})$
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection*{Déroulement de la première itération}
+
+\subsubsection*{Initialisation}
+\begin{itemize}
+    \item Nombre de colonnes : $n = 9$, nombre de lignes : $m = 7$.
+    \item Coûts : $C = [10, 5, 8, 6, 9, 13, 11, 4, 6]$.
+    \item Matrice d'incidence $A$ : 
+    \begin{itemize}
+        \item $A_1 = \{1,2,3,5,7,8\}$, $A_2 = \{2,3,8\}$, $A_3 = \{2,3,8\}$,
+        \item $A_4 = \{2,5,6,8,9\}$, $A_5 = \{4\}$, $A_6 = \{1,3,5,6,9\}$,
+        \item $A_7 = \{2,3,7,9\}$, $A_8 = \{1,4,5,8,9\}$, $A_9 = \{?\}$ 
+        % Sostituire ? con il set corretto se necessario
+    \end{itemize}
+    \item Phéromones initiales : $\tau_i = 1$ pour $i=1..9$.
+    \item Solution courante : $\mathbf{x} = [0,0,0,0,0,0,0,0,0]$.
+    \item Lignes couvertes : $U = \emptyset$.
+    \item Colonnes disponibles : $Cnd = \{1,2,\dots,9\}$.
+\end{itemize}
+
+\subsubsection*{Choix de la première colonne par la fourmi}
+\begin{itemize}
+    \item \textbf{Colonnes faisables} : $F = \{ i \in Cnd \mid i \text{ couvre au moins une ligne non couverte} \}$.
+        Supposons que toutes les colonnes sont faisables au départ : $F = \{1,2,3,4,5,6,7,8,9\}$.
+    \item \textbf{Calcul des probabilités} : 
+        \[
+        p_i \propto (\tau_i)^\alpha \cdot (C[i])^\beta
+        \]
+        avec $\alpha = 1$, $\beta = 2$.  
+        Exemple de calcul (approximatif) :
+        \[
+        p_1 \propto 1 \cdot 10^2 = 100, \quad
+        p_2 \propto 1 \cdot 5^2 = 25, \dots
+        \]
+    \item \textbf{Sélection aléatoire selon les probabilités} : supposons que la colonne choisie est $i = 1$.
+    \item \textbf{Mouvement} : ajouter la colonne $1$ à la solution.
+    \item \textbf{Nouvelle solution $\mathbf{x}$} : 
+    \[
+    \mathbf{x} = [1, 0, 0, 0, 0, 0, 0, 0, 0]
+    \] 
+    (soit $\{e_1\}$).
+    \item \textbf{Mise à jour des lignes couvertes} : $U \gets U \cup A_1 = \{1,2,3,5,7,8\}$.
+    \item \textbf{Colonnes disponibles} : retirer la colonne 1 et toutes celles qui ne sont plus faisables à cause de lignes déjà couvertes.
+\end{itemize}
+
+\subsubsection*{Calcul de l'objectif et mise à jour des phéromones}
+\begin{itemize}
+    \item \textbf{Valeur de la solution} : $z = \sum_i C[i] x[i] = 10$.
+    \item \textbf{Mise à jour des phéromones} :
+    \begin{itemize}
+        \item Évaporation : $\tau_i \gets (1-\rho) \tau_i$, ici $\rho = 0.1$, donc $\tau_i \gets 0.9 \cdot 1 = 0.9$ pour toutes les colonnes.
+        \item Dépôt par la solution : pour les colonnes sélectionnées ($i=1$) : 
+        \[
+        \tau_1 \gets \tau_1 + \Delta\tau_1, \quad \Delta\tau_1 = \frac{Q \cdot z}{\sum C} = \frac{1 \cdot 10}{\sum C}
+        \]
+        \item Dépôt élitiste : idem pour la meilleure solution globale (ici même que la solution courante).
+    \end{itemize}
+    \item \textbf{Nouvelle valeur des phéromones} :
+    \[
+    \tau = [\tau_1, \tau_2, \dots, \tau_9] \approx [0.9 + \Delta\tau_1, 0.9, \dots, 0.9]
+    \]
+\end{itemize}
+
+\subsubsection*{Fin de la première itération}
+\begin{itemize}
+    \item Solution courante : $\mathbf{x} = \{e_1\}$.
+    \item Valeur : $z = 10$.
+    \item Phéromones mises à jour : $\tau_1 > 0.9$, les autres $\tau_i = 0.9$.
+\end{itemize}
+
+%
+% -----------------------------------------------------------------------------------------------------------------------------------------------------
+%
+
+\vspace{5mm}
+\noindent
+\fbox{
+  \begin{minipage}{0.97 \textwidth}
+    \begin{center}
+      \vspace{1mm}
+        \Large{Expérimentation numérique comparative GRASP vs métaheuristique concurrente}
+      \vspace{1mm}
+    \end{center}
+  \end{minipage}
+}
+\vspace{2mm}
+
+\noindent
+Paramètres de test pour les graphiques :
+\begin{itemize}
+    \item nbInstances = 10
+    \item nbRunGrasp = 30
+    \item nbIterationGrasp = 100
+    \item nbDivisionRun = 10
+    \item alpha = 1.0
+    \item beta=2.0
+    \item num\_ants=30
+    \item rho=0.1
+    \item Q=1.0
+\end{itemize}
+\begin{figure}[h!]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{imgs/Examen_runACO.png}
+        \caption{Un run du ACO}
+        \label{fig:runACO}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{imgs/bilan_tous_runsACO.png}
+        \caption{Bilan sur tous les run}
+        \label{fig:bilanACO}
+    \end{minipage}
+\end{figure}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\linewidth]{imgs/bilan_CPUt_tous_runsACO.png}
+    \caption{CPU temps d’execution}
+    \label{fig:placeholder}
+\end{figure}
+
+\vspace{10cm}
+
+
+\begin{longtable}{|c|c|c|}
+\hline
+Fichier & Solution trouvée & Temps (s) \\
+\hline
+pb\_1000rnd0100.dat & 67.0 & 19.77 \\
+pb\_1000rnd0800.dat & 168.0 & 135.58 \\
+pb\_100rnd0500.dat & 639.0 & 1.00 \\
+pb\_100rnd1200.dat & 23.0 & 1.02 \\
+pb\_2000rnd0400.dat & 26.0 & 389.48 \\
+pb\_2000rnd0500.dat & 126.0 & 27.73 \\
+pb\_200rnd0300.dat & 722.0 & 8.37 \\
+pb\_200rnd1800.dat & 18.0 & 1.98 \\
+pb\_500rnd0700.dat & 1127.0 & 26.58 \\
+pb\_500rnd1700.dat & 182.0 & 6.64 \\
+\hline
+\end{longtable}
+
+
+
+%
+% -----------------------------------------------------------------------------------------------------------------------------------------------------
+%
+
+\vspace{5mm}
+\noindent
+\fbox{
+  \begin{minipage}{0.97 \textwidth}
+    \begin{center}
+      \vspace{1mm}
+        \Large{Discussion}
+      \vspace{1mm}
+    \end{center}
+  \end{minipage}
+}
+\vspace{2mm}
+
+\noindent
+Après avoir exécuté les deux métaheuristiques sur plusieurs instances, on peut tirer les observations suivantes :
+
+Qualité des solutions :
+
+GRASP+PR produit de bonnes solutions dès les premières itérations, tandis qu'ACO les explore de manière plus progressive et nécessite donc un plus grand nombre d'itérations pour atteindre la solution optimale.
+
+Variabilité et robustesse :
+
+L'ACO présente une plus grande variabilité de solutions pour différentes exécutions, aussi en raison des paramétrages possibles.
+
+Temps de calcul :
+
+GRASP+PR est plus rapide sur les tailles moyennes, tandis que le temps d'exécution d'ACO augmente avec le nombre de fourmis, mais globalement, pour les meilleures solutions, ACO est l'algorithme qui prend le moins de temps.
+
+
+On peut donc dire que GRASP + PR est généralement plus rapide et robuste pour obtenir des solutions de haute qualité sur des instances variées, tandis que l’ACO est plus exploratoire et paramétrable, ce qui peut permettre d’atteindre de meilleures solutions sur des instances spécifiques avec un temps de calcul suffisant.
+
+
+
+
+
+\begingroup
+
+    \small 
+    
+    \vfill 
+    
+    \noindent \textit{\textbf{Note :} Mon travail a été accompagné par des systèmes LLM pour les traductions, la mise en forme \LaTeX de certaines étapes/formules, et l'écriture des algorithmes. Dans mon cas, cela m'a été absolument utile comme \textbf{support didactique}, m'aidant à traduire du pseudocode en Julia ou pour l'explication de fonctions / les illustrations étape-par-étape de passages qui m'étaient peu clairs. Même lorsque les réponses n'étaient pas exactes, elles ont tout de même amélioré une recherche de solution en ligne.}
+\endgroup
