@@ -40,7 +40,7 @@ for fname in dat_files
 end
 
 # Genera il file LaTeX
-latex_file = "results_table.tex"
+latex_file = "results_el1.tex"
 open(latex_file, "w") do io
     println(io, "Result E1")
     println(io, "\\begin{longtable}[c]{| c | c | c | c | c |}")
@@ -48,7 +48,7 @@ open(latex_file, "w") do io
     println(io, "File & Heuristic & Time (s) & Local Search & Time (s) \\\\")
     println(io, "\\hline")
     for (fname, val_heur, t_heur, val_local, t_local) in results
-        println(io, @sprintf("%s & %.2f & %.2f & %.2f & %.2f \\\\", fname, val_heur, t_heur, val_local, t_local))
+        println(io, @sprintf("%s & %.0f & %.6f & %.0f & %.6f \\\\", fname, val_heur, t_heur, val_local, t_local))
     end
     println(io, "\\hline")
     println(io, "\\end{longtable}")

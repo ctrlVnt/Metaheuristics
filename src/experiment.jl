@@ -108,10 +108,23 @@ end
 using PyPlot
 
 function simulation()
-    allfinstance      =  ["didactic.txt", "fn2.txt", "fn3.txt", "fnA.txt", "fnX.txt"]
+    allfinstance      =  ["../dat/pb_100rnd0500.dat", 
+                            "../dat/pb_100rnd1200.dat"]
+    #=
+    allfinstance      =  ["../dat/pb_100rnd0500.dat", 
+                            "../dat/pb_100rnd1200.dat", 
+                            "../dat/pb_200rnd0300.dat", 
+                            "../dat/pb_200rnd1800.dat", 
+                            "../dat/pb_500rnd0700.dat", 
+                            "../dat/pb_500rnd1700.dat", 
+                            "../dat/pb_1000rnd0100.dat", 
+                            "../dat/pb_1000rnd0800.dat", 
+                            "../dat/pb_2000rnd0400.dat", 
+                            "../dat/pb_2000rnd0500.dat"]
+                            =#
     nbInstances       =  length(allfinstance)
-    nbRunGrasp        =  30   # nombre de fois que la resolution GRASP est repetee
-    nbIterationGrasp  =  200  # nombre d'iteration que compte une resolution GRASP
+    nbRunGrasp        =  3   # nombre de fois que la resolution GRASP est repetee
+    nbIterationGrasp  =  100  # nombre d'iteration que compte une resolution GRASP
     nbDivisionRun     =  10   # nombre de division que compte une resolution GRASP
 
     zinit = zeros(Int64, nbIterationGrasp) # zero
@@ -138,18 +151,21 @@ function simulation()
     cpt = 0
 
     # run non comptabilise (afin de produire le code compile)
-    zinit, zls, zbest = graspSPP(allfinstance[1], 0.5, 1)
-
+    #zinit, zls, zbest = graspSPP(allfinstance[1], 0.5, 1)
+    #alpha = 0.5
+    #_, _, zinit, zls, zbest = heuristicGRASPnoImp(C, A, alpha, nbIterationGrasp)
     for instance = 1:nbInstances
         # les instances sont traitees separement
 
         print("  ",allfinstance[instance]," : ")
         for runGrasp = 1:nbRunGrasp
             # une instance sera resolue nbrungrasp fois
-
+            C, A = loadSPP(allfinstance[instance])
             start = time() # demarre le compteur de temps
-            alpha = 0.75
-            zinit, zls, zbest = graspSPP(allfinstance[instance], alpha, nbIterationGrasp)
+            alpha = 0.5
+            #zinit, zls, zbest = graspSPP(allfinstance[instance], alpha, nbIterationGrasp)
+            #_, _, zinit, zls, zbest = heuristicGRASPnoImp(C, A, alpha, nbIterationGrasp)
+            _, _, zinit, zls, zbest = heuristicGRASP(C, A, alpha, nbIterationGrasp)
             tutilise = time()-start # arrete et releve le compteur de temps
             cpt+=1; print(cpt%10)
 
@@ -177,4 +193,6 @@ function simulation()
     plotRunGrasp(allfinstance[instancenb], zinit, zls, zbest)
     plotAnalyseGrasp(allfinstance[instancenb], x, zmoy[instancenb,:], zmin[instancenb,:], zmax[instancenb,:] )
     plotCPUt(allfinstance, tmoy)
+
+    PyPlot.show()
 end

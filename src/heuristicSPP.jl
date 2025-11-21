@@ -30,7 +30,11 @@ function heuristicGRASP(C, A, alpha, iter)
     n = length(C)           # n variables
     m = size(A, 1)          # m constraints
     s = zeros(Int, n)       # reset S˚, the best solution found
-    sres = 0
+    z_best = 0
+
+    zinit_vec = zeros(Int, iter)
+    zls_vec   = zeros(Int, iter)
+    zbest_vec = zeros(Int, iter)
 
     eliteSet = []
 
@@ -71,99 +75,87 @@ function heuristicGRASP(C, A, alpha, iter)
             # remove the variable from the available list
             deleteat!(available, findfirst(==(i), available))
         end
+        zinit_vec[y] = sum(C .* x)
 
         # S1 <- localSearchImprovement(S)
-        s1, s1res = localSearch_1_1(C, A, x) # x is the heuristic
+        s1, z1_best = localSearch_1_1(C, A, x) # x is the heuristic
 
         # path relinking
         if !isempty(eliteSet)
             (xElite, _) = eliteSet[rand(1:length(eliteSet))]
             sPR, sPRres = pathRelinking(C, A, s1, xElite, eliteSet)
-            if sPRres > s1res
+            if sPRres > z1_best
                 s1 .= sPR
-                s1res = sPRres
+                z1_best = sPRres
             end
         end
-
+        zls_vec[y] = z1_best
         # update elite
-        push!(eliteSet, (copy(s1), s1res))
+        push!(eliteSet, (copy(s1), z1_best))
         
         # update the global best solution S*
-        if s1res > sres
+        if z1_best > z_best
             s .= s1
-            sres = s1res
+            z_best = z1_best
         end
-    
+        zbest_vec[y] = z_best
     end
 
-    return s, sres
+    return s, z_best, zinit_vec, zls_vec, zbest_vec
 end
 
-# C: profits
-# A: constraints
 function heuristicGRASPnoImp(C, A, alpha, iter)
 
-    # we create a matrix n x m
-    n = length(C)           # n variables
-    m = size(A, 1)          # m constraints
-    s = zeros(Int, n)       # reset S˚, the best solution found
-    sres = 0
+    n = length(C)
+    m = size(A, 1)
+    s_best = zeros(Int, n)
+    z_best = 0
 
-    eliteSet = []
+    zinit_vec = zeros(Int, iter)   # come zconstruction
+    zls_vec   = zeros(Int, iter)   # come zamelioration
+    zbest_vec = zeros(Int, iter)   # come zbest
 
-    for y in 1:iter
+    for k in 1:iter
 
-        # S ← greedyRandomizedConstruction(problem, α)
-
-        x = zeros(Int, n)   # solution vector S = {∅}
-        used_rows = falses(m)   # vector to track taken constraints
-        
-        available = collect(1:n)  # candidate indices
+        # ---- Costruzione greedy + random (S_init) ----
+        x = zeros(Int, n)
+        used_rows = falses(m)
+        available = collect(1:n)
 
         while !isempty(available)
-
-            # compute profit for the still valid candidates
             candidate_values = [C[i] for i in available]
-
             Cmax = maximum(candidate_values)
             Cmin = minimum(candidate_values)
-
-            # create the Restricted Candidate List (RCL)
             threshold = Cmin + alpha * (Cmax - Cmin)
             RCL = [i for i in available if C[i] >= threshold]
-
-            # if RCL is empty, break
             isempty(RCL) && break
-
-            # pick a candidate randomly from the RCL
             i = rand(RCL)
 
-            # check if it can be inserted (does not violate constraints)
             rows_of_one = findall(!iszero, A[:, i])
             if !any(used_rows[rows_of_one])
                 x[i] = 1
                 used_rows[rows_of_one] .= true
             end
 
-            # remove the variable from the available list
             deleteat!(available, findfirst(==(i), available))
         end
+        
+        zinit_vec[k] = sum(C .* x)
 
         # S1 <- localSearchImprovement(S)
-        s1, s1res = localSearch_1_1(C, A, x) # x is the heuristic
+        s1, s1res = localSearch_1_1(C, A, x)
+        zls_vec[k] = s1res
 
-        # update elite
-        push!(eliteSet, (copy(s1), s1res))
         
-        # update the global best solution S*
-        if s1res > sres
-            s .= s1
-            sres = s1res
+        if s1res > z_best
+            s_best .= s1
+            z_best = s1res
         end
-    
+
+        zbest_vec[k] = z_best
     end
 
-    return s, sres
+    return s_best, z_best, zinit_vec, zls_vec, zbest_vec
 end
 
 # ===========================================================================
