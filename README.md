@@ -1,21 +1,53 @@
-# Metahuristic
+# Metaheuristics for Set Packing Problem (SPP)
 
-project developed in Julia
+This project implements and compares several metaheuristic algorithms to solve instances of the **Set Packing Problem (SPP)**, a classical combinatorial optimization problem. The goal is to select a subset of items with maximum total profit while respecting packing constraints.
 
-## 📚 Julia Functions Used
+---
 
-- length(C) → returns the number of elements in vector C.
+## Implemented Heuristics
 
-- size(A, 1) → returns the number of rows in matrix A (i.e., number of constraints).
+The following heuristics are implemented and analyzed:
 
-- zeros(Int, n) → creates a vector of length n filled with zeros of type Int.
+1. **Greedy Heuristic**  
+   - Builds a solution iteratively by selecting the item with the highest profit that does not violate constraints.
+   - Fast but may yield suboptimal solutions.
 
-- falses(m) → creates a Boolean vector of length m initialized to false.
+2. **GRASP (Greedy Randomized Adaptive Search Procedure)**  
+   - Constructs solutions using a **randomized greedy approach** with parameter `alpha` controlling greediness vs randomness.
+   - Repeatedly generates solutions to explore the search space.
 
-- sortperm(C, rev=true) → returns the indices that would sort C in descending order.
+3. **GRASP + Path Relinking (PR)**  
+   - Extends GRASP by performing **path relinking** between elite solutions.
+   - Helps intensify the search and find higher-quality solutions.
 
-- findall(!iszero, A[:, i]) → finds the row indices where column i of A is nonzero.
+4. **Ant Colony Optimization (ACO)**  
+   - Simulates a colony of ants constructing solutions based on **pheromone trails** and heuristic information (profits).  
+   - Pheromone trails are updated iteratively to reinforce good solutions.
+   - Can optionally integrate **local search** for solution refinement.
 
-- any(used_rows[rows_un]) → checks if at least one element in used_rows[rows_un] is true.
+---
 
-- .= (broadcast assignment) → assigns values element-wise to a slice of a vector.
+## Local Search
+
+All heuristics optionally use **1–1 swap local search**:
+
+- **1–1 Swap:**  
+  Iteratively exchanges one selected item with one unselected item if it improves the total profit without violating constraints.
+- Can be used standalone or as an improvement phase in GRASP and ACO.
+
+---
+
+## Input Data Format
+
+- A **profit vector `C`** containing the profit of each item.
+- A **constraint matrix `A`** where `A[i,j] = 1` if item `j` uses resource `i`.  
+- Example:
+
+```
+    7 9
+    10 5 8 6 9 13 11 4 6
+    6
+    1 2 3 5 7 8
+    3
+    2 3 8
+```

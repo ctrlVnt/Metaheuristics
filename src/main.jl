@@ -4,6 +4,7 @@
 # Using the following packages
 using JuMP, GLPK
 using LinearAlgebra
+using Statistics
 
 include("loadSPP.jl")
 include("setSPP.jl")
@@ -13,16 +14,16 @@ include("improvements.jl")
 include("experiment.jl")
 
 # =========================================================================== #
-
+simulation()
 # Loading a SPP instance
 println("\nLoading...")
-fname = "../dat/pb_200rnd1800.dat"
+fname = "../dat/pb_1000rnd0800.dat"
 C, A = loadSPP(fname)
 #@show C #profits
 #@show A #constrants
 
 # Solving a SPP instance with artigian method
-#=t1 = time();
+t1 = time();
 println("\nSolving with heuristic...")
 x_heur = heuristicSPP(C, A)
 println("Heuristic solution value = ", sum(C .* x_heur))
@@ -43,33 +44,32 @@ println("Deepest search = ", val_best)
 
 end_time22 = time() - t22;
 println("Deepest search time = ", end_time22);
-=#
+
 
 # In Grasp we insert alpha end iter
 alpha = 0.8 # 1 casual 0 determinist
 iter = 5
 
-#=
+
 println("\nSolving with GRASP...")
 t3 = time();
 _, value, _, _, _ = heuristicGRASPnoImp(C, A, alpha, iter)
 end_grasp = time() - t3;
 println("Heuristic solution value = ", value)
 println("GRASP time = ", end_grasp);
-=#
-simulation()
-#=
+
+
 println("\nSolving with GRASP + path linking...")
 t4 = time();
 _, value, _, _, _ = heuristicGRASP(C, A, alpha, iter)
 end_grasp2 = time() - t4;
 println("Heuristic solution value = ", value)
 println("GRASP + Path Relinking time = ", end_grasp2);
-=#
-#=
+
+
 println("\nSolving with ACO...")
 t5 = time()
-x_aco, val_aco, tau = ACO_SPP(C, A;
+_, val_aco, tau, _, _, _ = ACO_SPP(C, A;
                                num_ants=30,
                                num_iter=60,
                                alpha=1.0,
@@ -80,7 +80,7 @@ x_aco, val_aco, tau = ACO_SPP(C, A;
 end_aco = time() - t5
 println("ACO solution value = ", val_aco)
 println("ACO time = ", end_aco)
-=#
+
 # --------------- #
 #=
 # Solving a SPP instance with GLPK

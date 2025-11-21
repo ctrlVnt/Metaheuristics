@@ -108,22 +108,15 @@ end
 using PyPlot
 
 function simulation()
-    allfinstance      =  ["../dat/pb_100rnd0500.dat", 
-                            "../dat/pb_100rnd1200.dat"]
-    #=
+
     allfinstance      =  ["../dat/pb_100rnd0500.dat", 
                             "../dat/pb_100rnd1200.dat", 
                             "../dat/pb_200rnd0300.dat", 
                             "../dat/pb_200rnd1800.dat", 
-                            "../dat/pb_500rnd0700.dat", 
-                            "../dat/pb_500rnd1700.dat", 
-                            "../dat/pb_1000rnd0100.dat", 
-                            "../dat/pb_1000rnd0800.dat", 
-                            "../dat/pb_2000rnd0400.dat", 
-                            "../dat/pb_2000rnd0500.dat"]
-                            =#
+                            "../dat/pb_500rnd0700.dat"]
+                    
     nbInstances       =  length(allfinstance)
-    nbRunGrasp        =  3   # nombre de fois que la resolution GRASP est repetee
+    nbRunGrasp        =  30   # nombre de fois que la resolution GRASP est repetee
     nbIterationGrasp  =  100  # nombre d'iteration que compte une resolution GRASP
     nbDivisionRun     =  10   # nombre de division que compte une resolution GRASP
 
@@ -162,10 +155,18 @@ function simulation()
             # une instance sera resolue nbrungrasp fois
             C, A = loadSPP(allfinstance[instance])
             start = time() # demarre le compteur de temps
-            alpha = 0.5
+            #alpha = 0.5
             #zinit, zls, zbest = graspSPP(allfinstance[instance], alpha, nbIterationGrasp)
             #_, _, zinit, zls, zbest = heuristicGRASPnoImp(C, A, alpha, nbIterationGrasp)
-            _, _, zinit, zls, zbest = heuristicGRASP(C, A, alpha, nbIterationGrasp)
+            #_, _, zinit, zls, zbest = heuristicGRASP(C, A, alpha, nbIterationGrasp)
+            _, _, _, zinit, zls, zbest = ACO_SPP(C, A;
+                                            num_ants=30,
+                                            num_iter=nbIterationGrasp,
+                                            alpha=1.0,
+                                            beta=2.0,
+                                            rho=0.1,
+                                            Q=1.0,
+                                            localSearch=false)
             tutilise = time()-start # arrete et releve le compteur de temps
             cpt+=1; print(cpt%10)
 

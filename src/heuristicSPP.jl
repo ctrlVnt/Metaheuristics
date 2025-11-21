@@ -158,10 +158,6 @@ function heuristicGRASPnoImp(C, A, alpha, iter)
     return s_best, z_best, zinit_vec, zls_vec, zbest_vec
 end
 
-# ===========================================================================
-# Pure ACO for SPP (no localSearch)
-# ===========================================================================
-
 # Weighted random choice without external packages
 function weighted_choice(available::Vector{Int}, weights::Vector{Float64})
     if isempty(available)
@@ -233,6 +229,11 @@ function ACO_SPP(C::Vector{<:Number}, A::AbstractMatrix;
     best_global = zeros(Int, n)
     best_global_val = -Inf
 
+    # --- nuovi vettori richiesti ---
+    zmin_vec = Float64[]
+    zmoy_vec = Float64[]
+    zmax_vec = Float64[]
+
     for iter in 1:num_iter
         sols = Vector{Vector{Int}}()
         vals = Float64[]
@@ -252,6 +253,11 @@ function ACO_SPP(C::Vector{<:Number}, A::AbstractMatrix;
                 best_global .= x
             end
         end
+
+        # --- registra statistiche dell’iterazione ---
+        push!(zmin_vec, minimum(vals))
+        push!(zmoy_vec, mean(vals))
+        push!(zmax_vec, maximum(vals))
 
         # evaporate pheromone
         tau .*= (1.0 - rho)
@@ -278,5 +284,5 @@ function ACO_SPP(C::Vector{<:Number}, A::AbstractMatrix;
         #println("ACO iter $iter: best_so_far = ", best_global_val)
     end
 
-    return best_global, best_global_val, tau
+    return best_global, best_global_val, tau, zmin_vec, zmoy_vec, zmax_vec
 end
