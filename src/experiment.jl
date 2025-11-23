@@ -19,7 +19,7 @@ end
 
 function plotRunGrasp(iname,zinit, zls, zbest)
     figure("Examen d'un run",figsize=(6,6)) # Create a new figure
-    title("GRASP-SPP | \$z_{Init}\$  \$z_{LS}\$  \$z_{Best}\$ | " * iname)
+    title("ACO | \$z_{Init}\$  \$z_{LS}\$  \$z_{Best}\$ | " * iname)
     xlabel("Itérations")
     ylabel("valeurs de z(x)")
     ylim(0, maximum(zbest)+2)
@@ -36,7 +36,7 @@ end
 
 function plotAnalyseGrasp(iname, x, zmoy, zmin, zmax)
     figure("bilan tous runs",figsize=(6,6)) # Create a new figure
-    title("GRASP-SPP | \$z_{min}\$  \$z_{moy}\$  \$z_{max}\$ | " * iname)
+    title("ACO | \$z_{min}\$  \$z_{moy}\$  \$z_{max}\$ | " * iname)
     xlabel("Itérations (pour nbRunGrasp)")
     ylabel("valeurs de z(x)")
     ylim(0, zmax[end]+2)
@@ -51,7 +51,7 @@ end
 
 function plotCPUt(allfinstance, tmoy)
     figure("bilan CPUt tous runs",figsize=(6,6)) # Create a new figure
-    title("GRASP-SPP | tMoy")
+    title("ACO | tMoy")
     ylabel("CPUt moyen (s)")
 
     xticks(collect(1:length(allfinstance)), allfinstance, rotation=60, ha="right")
@@ -109,11 +109,7 @@ using PyPlot
 
 function simulation()
 
-    allfinstance      =  ["../dat/pb_100rnd0500.dat", 
-                            "../dat/pb_100rnd1200.dat", 
-                            "../dat/pb_200rnd0300.dat", 
-                            "../dat/pb_200rnd1800.dat", 
-                            "../dat/pb_500rnd0700.dat"]
+    allfinstance      =  ["../dat/pb_100rnd0500.dat"]
                     
     nbInstances       =  length(allfinstance)
     nbRunGrasp        =  30   # nombre de fois que la resolution GRASP est repetee
@@ -155,10 +151,11 @@ function simulation()
             # une instance sera resolue nbrungrasp fois
             C, A = loadSPP(allfinstance[instance])
             start = time() # demarre le compteur de temps
-            #alpha = 0.5
+            #alpha = 1.0
             #zinit, zls, zbest = graspSPP(allfinstance[instance], alpha, nbIterationGrasp)
             #_, _, zinit, zls, zbest = heuristicGRASPnoImp(C, A, alpha, nbIterationGrasp)
             #_, _, zinit, zls, zbest = heuristicGRASP(C, A, alpha, nbIterationGrasp)
+            
             _, _, _, zinit, zls, zbest = ACO_SPP(C, A;
                                             num_ants=30,
                                             num_iter=nbIterationGrasp,
@@ -167,6 +164,7 @@ function simulation()
                                             rho=0.1,
                                             Q=1.0,
                                             localSearch=false)
+            
             tutilise = time()-start # arrete et releve le compteur de temps
             cpt+=1; print(cpt%10)
 

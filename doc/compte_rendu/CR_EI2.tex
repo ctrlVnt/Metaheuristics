@@ -289,32 +289,32 @@ Paramètres de test pour les graphiques :
      \item nbRunGrasp        = 30
      \item nbIterationGrasp  = 100
      \item nbDivisionRun     = 10
-     \item alpha = 0.5
+     \item alpha = [0.0, 0.25, 0.5, 0.75, 1.0]
  \end{itemize}
  \begin{figure}[h!]
     \centering
     \begin{minipage}[b]{0.48\linewidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/Examen_run_GRASP.png}
-        \caption{Un run du GRASP}
+        \includegraphics[width=\linewidth]{imgs/bilan_tous_runs_GRASP.png}
+        \caption{Bilan sur tous les run}
         \label{fig:runGRASP}
     \end{minipage}
     \hfill
     \begin{minipage}[b]{0.48\linewidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/bilan_tous_runs_GRASP.png}
-        \caption{Bilan sur tous les run}
+        \includegraphics[width=\linewidth]{imgs/bilan_CPUt_tous_runs_GRASP.png}
+        \caption{CPU temps d'execution}
         \label{fig:bilanRuns}
     \end{minipage}
 \end{figure}
  \begin{figure}[h!]
      \centering
-     \includegraphics[width=0.5\linewidth]{imgs/bilan_CPUt_tous_runs_GRASP.png}
-     \caption{CPU temps d'execution}
+     \includegraphics[width=1\linewidth]{imgs/GRASP.png}
+     \caption{Comparison changement d'alpha sur GRASP}
      \label{fig:placeholder}
  \end{figure}
 
-
+\vspace{40mm}
 \noindent
 Paramètres pour test sur best value :
 \begin{itemize}
@@ -366,7 +366,7 @@ Ex alpha sur pb\_200rnd0300 :
     \item alpha 0 : 678 en 24 secondes
 \end{itemize}
 
-En conclusion, si la valeur optimale varie légèrement en fonction d'alpha, elle varie considérablement au fil du temps. En effet, pour une valeur élevée d'alpha, la liste RCL est plus courte, tandis que pour alpha = 0, elle contient beaucoup plus de candidats.
+En conclusion, comme nous pouvons le voir sur le graphique, plus nous augmentons la valeur alpha, moins il y aura d'exploration. C'est pourquoi avoir un alpha faible prend plus de temps à s'exécuter.
 
 %
 % -----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -391,32 +391,32 @@ Paramètres de test pour les graphiques :
     \item nbRunGrasp = 3
     \item nbIterationGrasp = 100
     \item nbDivisionRun = 10
-    \item alpha = 0.5
+    \item alpha = [0.0, 0.25, 0.5, 0.75, 1.0]
 \end{itemize}
 \begin{figure}[h!]
     \centering
     \begin{minipage}[b]{0.48\linewidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/Examen_run_PR.png}
-        \caption{Un run du GRASP + PR}
+        \includegraphics[width=\linewidth]{imgs/bilan_tous_runs_PR.png}
+        \caption{Bilan sur tous les run GRASP+PR}
         \label{fig:runGRASP_PR}
     \end{minipage}
     \hfill
     \begin{minipage}[b]{0.48\linewidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/bilan_tous_runs_PR.png}
-        \caption{Bilan sur tous les run}
+        \includegraphics[width=\linewidth]{imgs/bilan_CPUt_tous_runs_PR.png}
+        \caption{CPU temps d'execution GRASP+PR}
         \label{fig:bilanGRASP_PR}
     \end{minipage}
 \end{figure}
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.5\linewidth]{imgs/bilan_CPUt_tous_runs_PR.png}
-    \caption{CPU temps d'execution}
+    \includegraphics[width=1\linewidth]{imgs/GRASP_PR.png}
+    \caption{Comparison changement d'alpha sur GRASP+PR}
     \label{fig:placeholder}
 \end{figure}
 
-\vspace{3cm}
+\vspace{40cm}
 
 \noindent
 Paramètres pour les tests :
@@ -463,6 +463,8 @@ Le Path Relinking améliore considérablement les solutions trouvées par GRASP,
 
 Le GRASP seul approche déjà une solution optimale dans un temps relativement rapide, en veillant à bien paramétrer le nombre d'itérations et $\alpha$. Avec le Path Relinking, nous observons une amélioration notable, au détriment du temps de calcul qui reste cependant acceptable si on le compare à Jump, par exemple.
 Le Path Relinking, avec un nombre d'itérations adéquat, peut vraiment donner d'excellents résultats, très proches des optima connus.
+
+Comme nous pouvons le voir sur le graphique, le comportement de l’alpha variable pour le GRASP+PR est similaire au GRASP, mais avec une meilleure exploration et un amélioration de la valeur optimale.
 
 \vfill
 \break

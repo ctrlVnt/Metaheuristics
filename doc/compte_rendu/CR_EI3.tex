@@ -15,7 +15,7 @@
   \begin{minipage}{0.97 \textwidth}
     \begin{center}
       \vspace{1mm}
-        \Large{Présentation succincte des choix de mise en \oe uvre de la métaheuristique concurrente à GRASP appliquée au SPP}
+        \Large{Présentation succincte des choix de mise en \oe uvre de ACO à GRASP appliquée au SPP}
       \vspace{1mm}
     \end{center}
   \end{minipage}
@@ -238,7 +238,7 @@ Le paradigma :
   \begin{minipage}{0.97 \textwidth}
     \begin{center}
       \vspace{1mm}
-        \Large{Expérimentation numérique comparative GRASP vs métaheuristique concurrente}
+        \Large{Expérimentation numérique comparative GRASP vs ACO}
       \vspace{1mm}
     \end{center}
   \end{minipage}
@@ -252,8 +252,8 @@ Paramètres de test pour les graphiques :
     \item nbRunGrasp = 30
     \item nbIterationGrasp = 100
     \item nbDivisionRun = 10
-    \item alpha = 1.0
-    \item beta=2.0
+    \item alpha = [0.0, 0.5, 1.0]
+    \item beta=[0.0, 1.0, 2.0]
     \item num\_ants=30
     \item rho=0.1
     \item Q=1.0
@@ -262,26 +262,47 @@ Paramètres de test pour les graphiques :
     \centering
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/Examen_runACO.png}
-        \caption{Un run du ACO}
+        \includegraphics[width=\linewidth]{imgs/bilan_tous_runsACO.png}
+        \caption{Bilan sur tous les run d'ACO}
         \label{fig:runACO}
     \end{minipage}
     \hfill
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{imgs/bilan_tous_runsACO.png}
-        \caption{Bilan sur tous les run}
+        \includegraphics[width=\linewidth]{imgs/bilan_CPUt_tous_runsACO.png}
+        \caption{CPU temps d’execution d'ACO}
         \label{fig:bilanACO}
     \end{minipage}
 \end{figure}
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.5\linewidth]{imgs/bilan_CPUt_tous_runsACO.png}
-    \caption{CPU temps d’execution}
+    \includegraphics[width=1\linewidth]{imgs/ACO.png}
+    \caption{Comparison changement d'alpha et Beta sur ACO}
     \label{fig:placeholder}
 \end{figure}
 
-\vspace{10cm}
+Les parametres : 
+\begin{itemize}
+    \item Alpha ($\alpha$) :
+    \begin{itemize}
+        \item Bas (0) : Recherche aléatoire 
+        \item Haut (2+) : Stagnation rapide.
+    \end{itemize}
+\end{itemize}
+\begin{itemize}
+    \item Beta ($\beta$) : 
+    \begin{itemize}
+        \item Bas (0) : Convergence lente.
+        \item Haut (5+) : Comportement glouton.
+    \end{itemize}
+\end{itemize}
+\begin{itemize}
+    \item Évaporation ($\rho$) : 
+    \begin{itemize}
+        \item Bas (0.01) : Mémoire trop longue.
+        \item Haut (0.5+) : "Amnésie", l'algorithme n'apprend pas.
+    \end{itemize}
+\end{itemize}
 
 
 \begin{longtable}{|c|c|c|}
