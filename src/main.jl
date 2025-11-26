@@ -14,7 +14,7 @@ include("improvements.jl")
 include("experiment.jl")
 
 # =========================================================================== #
-simulation()
+
 # Loading a SPP instance
 println("\nLoading...")
 fname = "../dat/pb_1000rnd0800.dat"
